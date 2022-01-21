@@ -10,7 +10,8 @@ import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
 import { Checkbox } from "@material-ui/core";
-import {Pagination} from "antd";
+import Pagination from "./components/Pagination";
+import Posts from './components/Posts'
 import { type } from "@testing-library/user-event/dist/type";
 
 const StyledTableCell = withStyles((theme) => ({
@@ -41,19 +42,19 @@ const useStyles = makeStyles({
 const App = () => {
   const classes = useStyles();
   const [posts, setPosts] = useState([]);
-  const [total, setTotal] = useState('');
-  const [page, setPage] =useState(1);
-  const [postsPerPage, setPostsPerPage] = useState(25)
+  const [loading, setLoading] = useState(false);
+  const [currentpage, setCurrentPage] = useState(1);
+  const [postsPerPage] = useState(25);
   
 useEffect(() => {
-  const loadPosts = async () =>{
+  const fetchPosts = async () =>{
+    setLoading(true);
     const response = await axios.get(
       "http://malih-auth.ap-southeast-2.elasticbeanstalk.com/campaign/getAllUploadedEmails/listId/480");
-      console.log(response)
       setPosts(response.data);
-      setTotal(response.data.length); 
+      setLoading(false); 
   };
-    loadPosts();
+    fetchPosts();
 
 },[]);
 
@@ -75,25 +76,11 @@ useEffect(() => {
     );
   };
 
-  const indexOfLastPage = page + postsPerPage;
+  const indexOfLastPage = currentpage * postsPerPage;
   const indexOfFirstPage = indexOfLastPage - postsPerPage;
   const currentPosts = posts.slice(indexOfFirstPage, indexOfLastPage);
 
-  const onShowSizeChange = (current, pageSize) => {
-    setPostsPerPage(pageSize);
-  };
-  
-  const itemRender =(current,type, originalElement) => {
-    if(type === 'prev'){
-      return <a>Prev</a>
-    }
-
-    if(type === 'next'){
-      return <a>Next</a>
-    }
-
-    return originalElement;
-  }
+  const paginate = pageNumber => setCurrentPage(pageNumber)
 
   return (
     <div className="App">
@@ -121,7 +108,7 @@ useEffect(() => {
              .map((row) => {
                 return (                  
                   <StyledTableRow key={row.id}>
-                    <Checkbox checkboxselection='true' size='medium' />
+                    <Checkbox checkboxselection='true' size='medium'/>
                     <StyledTableCell>{row.id}</StyledTableCell>
                     <StyledTableCell>{row.email}</StyledTableCell>
                     <StyledTableCell> {row.name}</StyledTableCell>
@@ -143,14 +130,9 @@ useEffect(() => {
           <h3 key={post.id}>{post.body}</h3>
         ))}
         <Pagination
-        onChange={(value) => setPage(value)}
-        pageSize={postsPerPage}
-        total={posts.length}
-        current={page}
-        showSizeChanger
-        showQuickJumper
-        onShowSizeChange={onShowSizeChange}
-        itemRender={itemRender}
+        postsPerPage={postsPerPage}
+        totalPosts ={posts.length}
+        paginate={paginate}
         />
     </div>
   );
