@@ -1,141 +1,30 @@
 import "./App.css";
+import React from "react";
 import axios from "axios";
+import TableData from "./components/TableData";
 import { useEffect, useState } from "react";
-import { withStyles, makeStyles } from "@material-ui/core/styles";
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
-import TableCell from "@material-ui/core/TableCell";
-import TableContainer from "@material-ui/core/TableContainer";
-import TableHead from "@material-ui/core/TableHead";
-import TableRow from "@material-ui/core/TableRow";
-import Paper from "@material-ui/core/Paper";
-import { Checkbox } from "@material-ui/core";
-import Pagination from "./components/Pagination";
-import Posts from './components/Posts'
-import { type } from "@testing-library/user-event/dist/type";
 
-const StyledTableCell = withStyles((theme) => ({
-  head: {
-    backgroundColor: theme.palette.common.black,
-    color: theme.palette.common.white,
-    
-  },
-  body: {
-    fontSize: 14,
-  },
-}))(TableCell);
+function App() {
+  const [items, setItems] = useState([]);
 
-const StyledTableRow = withStyles((theme) => ({
-  root: {
-    "&:nth-of-type(odd)": {
-      backgroundColor: theme.palette.action.hover,
-    },
-  },
-}))(TableRow);
-
-const useStyles = makeStyles({
-  table: {
-    minWidth: 700,
-  },
-});
-
-const App = () => {
-  const classes = useStyles();
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [currentpage, setCurrentPage] = useState(1);
-  const [postsPerPage] = useState(25);
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await axios.get(
+        "http://malih-auth.ap-southeast-2.elasticbeanstalk.com/campaign/getAllUploadedEmails/listId/480"
+      );
+      setItems(response.data);
+      console.log(response.data)
+    };
+    fetchData();
+  }, []);
   
-useEffect(() => {
-  const fetchPosts = async () =>{
-    setLoading(true);
-    const response = await axios.get(
-      "http://malih-auth.ap-southeast-2.elasticbeanstalk.com/campaign/getAllUploadedEmails/listId/480");
-      setPosts(response.data);
-      setLoading(false); 
-  };
-    fetchPosts();
-
-},[]);
-
-  const editButton=() => {
-    return (
-      <div>
-        <button color="green">
-          Edit
-        </button>
-      </div>
-    );
-  };
-
-  const viewButton =() => {
-    return (
-      <button>
-        View
-      </button>
-    );
-  };
-
-  const indexOfLastPage = currentpage * postsPerPage;
-  const indexOfFirstPage = indexOfLastPage - postsPerPage;
-  const currentPosts = posts.slice(indexOfFirstPage, indexOfLastPage);
-
-  const paginate = pageNumber => setCurrentPage(pageNumber)
-
   return (
-    <div className="App">
-      
-      <h1>DataTable</h1>
-      <TableContainer component={Paper}>
-        <Table className={classes.table} aria-label="customized table">
-          <TableHead>
-            <TableRow>
-            <Checkbox checkboxselection='true' size='medium'/>
-              <StyledTableCell> ID</StyledTableCell>
-              <StyledTableCell> Email</StyledTableCell>
-              <StyledTableCell> Name</StyledTableCell>
-              <StyledTableCell> PhoneNumber</StyledTableCell>
-              <StyledTableCell> Address</StyledTableCell>
-              <StyledTableCell> JobTitle</StyledTableCell>
-              <StyledTableCell> ListId</StyledTableCell>
-              <StyledTableCell> Edit</StyledTableCell>
-              <StyledTableCell> View</StyledTableCell>             
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            
-            {posts              
-             .map((row) => {
-                return (                  
-                  <StyledTableRow key={row.id}>
-                    <Checkbox checkboxselection='true' size='medium'/>
-                    <StyledTableCell>{row.id}</StyledTableCell>
-                    <StyledTableCell>{row.email}</StyledTableCell>
-                    <StyledTableCell> {row.name}</StyledTableCell>
-                    <StyledTableCell> {row.phoneNumber}</StyledTableCell>
-                    <StyledTableCell> {row.address}</StyledTableCell>
-                    <StyledTableCell> {row.jobTitle}</StyledTableCell>
-                    <StyledTableCell> {row.listId}</StyledTableCell>
-                    <StyledTableCell> {editButton() }</StyledTableCell>
-                    <StyledTableCell align='right'> 
-                      {viewButton()}</StyledTableCell>                   
-                  </StyledTableRow>
-                );
-              })}
-          </TableBody>
-            
-        </Table>
-      </TableContainer>
-        {currentPosts.map((post) => (
-          <h3 key={post.id}>{post.body}</h3>
-        ))}
-        <Pagination
-        postsPerPage={postsPerPage}
-        totalPosts ={posts.length}
-        paginate={paginate}
-        />
-    </div>
+      <div>
+       <TableData arrayData={items}/>
+      </div>
+  
+    
   );
-};
+}
 
 export default App;
