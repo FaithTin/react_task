@@ -41,18 +41,18 @@ function TableData(props) {
 
   const [rowsPerPage, setRowsPerPage] = React.useState(25);
 
-  const emptyRows =
-    page > 0 ? Math.max.apply(0, (1 + page) * rowsPerPage - rows.length) : 0;
-
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
 
   const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
+    setRowsPerPage(parseInt(event.target.value, 25));
     setPage(0);
   };
- 
+
+  const emptyRows =
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+
     return (
         <React.Fragment>
             <TableContainer component={Paper}>
@@ -91,7 +91,7 @@ function TableData(props) {
                         ))}
                         {emptyRows > 0 && (
                         <TableRow style={{ height:49*emptyRows}}>
-                          <TableCell col={10}/> : null
+                          <TableCell col={10}/> 
                         </TableRow>
                         )}
                     </TableBody> 
